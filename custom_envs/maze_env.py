@@ -13,10 +13,6 @@ class MazeEnv(gym.Env):
         # 描述马尔可夫决策过程, 元祖(S, P, A, R, gamma)
         self.__MDP()
 
-        self.cell_x=[175, 225, 275, 325, 375]
-        self.cell_y=[425, 375, 325, 275, 225]
-
-
     def __MDP(self):
         # 创建状态空间States
         self.__create_states()
@@ -193,6 +189,10 @@ class MazeEnv(gym.Env):
         self.robot.add_attr(self.robotranslator)
         self.robot.set_color(0, 0, 1)
         self.viewer.add_geom(self.robot)
+
+        # 保存网格信息
+        self.cell_x = [175, 225, 275, 325, 375]
+        self.cell_y = [425, 375, 325, 275, 225]
     
     def render(self, mode='human', close=False):
         if close:
@@ -253,7 +253,9 @@ class MazeEnv(gym.Env):
         return self.state
 
     def close(self):
-        pass
+        if self.viewer is None: return
+        self.viewer.close()
+        self.viewer = None
 
 
 if __name__ == '__main__':
