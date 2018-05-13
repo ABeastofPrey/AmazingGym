@@ -151,33 +151,33 @@ class MazeEnv(gym.Env):
         self.viewer = rendering.Viewer(self.__window_width, self.__window_height)
         
         # 创建网格世界Environment
-        # 创建X轴
+        # 创建网格X轴
         for i in range(200, 500, 50):
             line_x = rendering.Line((150,i),(400,i))
             self.viewer.add_geom(line_x)
-        # 创建Y轴
+        # 创建网格Y轴
         for j in range(150, 450, 50):
             line_y = rendering.Line((j, 200), (j, 450))
             self.viewer.add_geom(line_y)
 
         # 创建陷阱
-        # 创建第一组陷阱
+        # 创建第一组陷阱（状态11，12）
         l, r, t, b = 150, 250, 350, 300
         trap = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
         trap.set_color(1, 0, 0)
         self.viewer.add_geom(trap)
-        # 创建第二组陷阱
+        # 创建第二组陷阱（状态4，9）
         l, r, t, b = 300, 350, 450, 350
         trap = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
         trap.set_color(1, 0, 0)
         self.viewer.add_geom(trap)
-        # 创建第三组陷阱
+        # 创建第三组陷阱（状态23，24，25）
         l, r, t, b = 250, 400, 200, 250
         trap = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
         trap.set_color(1, 0, 0)
         self.viewer.add_geom(trap)
         
-        # 创建出口
+        # 创建出口（状态15）
         l, r, t, b = 350, 400, 350, 300
         exit = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
         exit.set_color(1, 0.9, 0)
