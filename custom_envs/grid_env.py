@@ -24,7 +24,7 @@ class GridEnv(gym.Env):
 
         self.actions = ['n','e','s','w']
 
-        self.rewards = dict();        #回报的数据结构为字典
+        self.rewards = dict()        #回报的数据结构为字典
         self.rewards['1_s'] = -1.0
         self.rewards['3_s'] = 1.0
         self.rewards['5_s'] = -1.0
@@ -68,6 +68,11 @@ class GridEnv(gym.Env):
         self.setState(s)
         next_state, rewards, _, _ = self.step(a)
         return next_state, rewards
+
+    def transform1(self, s, a):
+        self.setState(s)
+        next_state, rewards, is_terminal, _ = self.step(a)
+        return is_terminal, next_state, rewards
 
     def step(self, action):
         #系统当前状态
