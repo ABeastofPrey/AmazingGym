@@ -12,8 +12,31 @@ class TemporalDifference(object):
         self.actions = env.getActions()
         self.gamma = env.gamma
 
-    def sarsa(self):
-        pass
+    def sarsa(self, num_iter, alpha, epsilon):
+        # 定义行为值函数为字典，并初始化为0
+        qfunc = dict()
+        for s in self.states:
+            for a in self.actions:
+               qfunc['%d_%s'%(s, a)] = 0.0
+        # 迭代探索环境
+        for _ in range(num_iter):
+            # 随机初始化初始状态
+            state = self.states[int(random.random() * len(self.states))]
+            action = self.actions[int(random.random()*len(self.actions))]
+
+            is_terminal, count = False, 0
+            while False == is_terminal and count < 100:
+                policy = "%d_%s"%(state, action)
+                is_terminal, next_state, reward = self.env.transform1(state, action)
+                # next_state处的最大动作，通过epsilon_greedy得出，这里是和qLearning的区别。
+                next_action = epsilon_greedy(qfunc, next_state, self.actions, epsilon)
+                next_policy = "%d_%s"%(next_state, next_action)
+                # 利用qlearning算法更新值函数, 评估策略是greedy，因为计算当前值函数的下一个策略的action是由greedy得出的。
+                qfunc[policy] = qfunc[policy] + alpha*(reward + self.gamma * qfunc[next_policy] - qfunc[policy])
+                # 转到下一个状态, 行动策略（探索策略）为epsilon_greedy.
+                state, action = next_state, epsilon_greedy(qfunc, next_state, self.actions, epsilon)
+                count += 1
+        return qfunc
 
     def q_learning(self, num_iter, alpha, epsilon):
         # 定义行为值函数为字典，并初始化为0
@@ -31,17 +54,17 @@ class TemporalDifference(object):
             while False == is_terminal and count < 100:
                 policy = "%d_%s"%(state, action)
                 is_terminal, next_state, reward = self.env.transform1(state, action)
-                # next_state处的最大动作
+                # next_state处的最大动作，通过greedy得出。
                 next_action = greedy(qfunc, next_state, self.actions)
                 next_policy = "%d_%s"%(next_state, next_action)
-                # 利用qlearning算法更新值函数
+                # 利用qlearning算法更新值函数, 评估策略是greedy，因为计算当前值函数的下一个策略的action是由greedy得出的。
                 qfunc[policy] = qfunc[policy] + alpha*(reward + self.gamma * qfunc[next_policy] - qfunc[policy])
-                # 转到下一个状态
+                # 转到下一个状态, 行动策略（探索策略）为epsilon_greedy.
                 state, action = next_state, epsilon_greedy(qfunc, next_state, self.actions, epsilon)
                 count += 1
         return qfunc
 
-    def ql_final_policy(self, qfunc):
+    def final_policy(self, qfunc):
         pi = dict()
         for state in self.states:
             if state in self.env.terminate_states: continue
@@ -53,8 +76,9 @@ def main():
     env = gym.make('GridEnv-v0')
     ### 探索策略
     policy_obj = TemporalDifference(env)
-    qfunc = policy_obj.q_learning(num_iter=500, alpha=0.2, epsilon=0.2)
-    final_policy = policy_obj.ql_final_policy(qfunc)
+    # qfunc = policy_obj.q_learning(num_iter=500, alpha=0.2, epsilon=0.2)
+    qfunc = policy_obj.sarsa(num_iter=500, alpha=0.2, epsilon=0.2)
+    final_policy = policy_obj.final_policy(qfunc)
     # 打印最终值函数和最终策略。
     print('最终值：')
     pprint.pprint(qfunc)
